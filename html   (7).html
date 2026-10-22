@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parabéns pelo Cadastro!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #0a0a2a;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #ffffff;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            animation: pulse 2s infinite;
+        }
+        
+        p {
+            color: #f0f0f0;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+        }
+        
+        .firework {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes explode {
+            0% { 
+                transform: translate(var(--startX), var(--startY)) scale(0);
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(var(--endX), var(--endY)) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            p { font-size: 1rem; }
+            .container { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Parabéns! 🎉</h1>
+        <p>Você foi cadastrado com sucesso!</p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            createFireworks();
+            
+            // Criar fogos de artifício continuamente
+            setInterval(createFireworks, 1500);
+        });
+        
+        function createFireworks() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff7700'];
+            
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    createFirework(colors);
+                }, i * 200);
+            }
+        }
+        
+        function createFirework(colors) {
+            const container = document.body;
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight / 2;
+            
+            // Criar partícula principal
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            firework.style.width = '8px';
+            firework.style.height = '8px';
+            firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            firework.style.left = x + 'px';
+            firework.style.top = y + 'px';
+            firework.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.8)';
+            container.appendChild(firework);
+            
+            // Animação de subida
+            const riseAnimation = firework.animate([
+                { transform: `translate(0, ${window.innerHeight}px) scale(1)`, opacity: 1 },
+                { transform: 'translate(0, 0) scale(1)', opacity: 1 }
+            ], {
+                duration: 1000,
+                easing: 'ease-out'
+            });
+            
+            riseAnimation.onfinish = () => {
+                // Explodir
+                explodeFirework(x, y, colors);
+                container.removeChild(firework);
+            };
+        }
+        
+        function explodeFirework(x, y, colors) {
+            const container = document.body;
+            const particleCount = 50 + Math.floor(Math.random() * 30);
+            
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (i / particleCount) * Math.PI * 2;
+                const distance = 50 + Math.random() * 100;
+                const duration = 800 + Math.random() * 400;
+                
+                const particle = document.createElement('div');
+                particle.className = 'firework';
+                particle.style.width = '6px';
+                particle.style.height = '6px';
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.borderRadius = '50%';
+                
+                // Definir variáveis CSS para a animação
+                particle.style.setProperty('--startX', '0px');
+                particle.style.setProperty('--endX', `${Math.cos(angle) * distance}px`);
+                particle.style.setProperty('--startY', '0px');
+                particle.style.setProperty('--endY', `${Math.sin(angle) * distance}px`);
+                
+                container.appendChild(particle);
+                
+                // Animação de explosão
+                particle.animate([
+                    { 
+                        transform: 'translate(var(--startX), var(--startY)) scale(0)', 
+                        opacity: 1 
+                    },
+                    { 
+                        transform: 'translate(var(--endX), var(--endY)) scale(1)', 
+                        opacity: 0 
+                    }
+                ], {
+                    duration: duration,
+                    easing: 'ease-out'
+                });
+                
+                // Remover partícula após animação
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        container.removeChild(particle);
+                    }
+                }, duration);
+            }
+        }
+    </script>
+</body>
+</html>

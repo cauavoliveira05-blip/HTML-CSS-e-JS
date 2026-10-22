@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Usuários</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header, footer {
+      background: #004080;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .form-section {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      text-align: center;
+      color: #004080;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, select {
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      background: #004080;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background: #0066cc;
+    }
+
+     input:invalid, select:invalid {
+      border: 2px solid red;
+    }
+
+    input:valid, select:valid {
+      border: 2px solid green;
+    }
+
+    @media (max-width: 600px) {
+      .form-section {
+        width: 100%;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sistema de Cadastro de Usuários</h1>
+  </header>
+
+  <main>
+    <section class="form-section">
+      <h2>Crie sua conta</h2>
+      <form id="cadastro" action="#" method="post">
+        
+        <label for="nome">Nome completo:</label>
+        <input type="text" id="nome" name="nome" required placeholder="Digite seu nome completo">
+
+        <label for="email">E-mail:</label>
+        <input type="email" id="email" name="email" required placeholder="exemplo@email.com">
+
+        <label for="dataNascimento">Data de Nascimento:</label>
+        <input type="date" id="dataNascimento" name="dataNascimento" required max ="2025-12-31">
+
+        <label for="genero">Gênero:</label>
+        <select id="genero" name="genero" required>
+          <option value="">Selecione</option>
+          <option value="masculino">Masculino</option>
+          <option value="feminino">Feminino</option>
+          <option value="outros">Outros</option>
+        </select>
+
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha" minlength="6" required placeholder="Mínimo 6 caracteres">
+
+        <label for="confirmarSenha">Confirmar Senha:</label>
+        <input type="password" id="confirmarSenha" name="confirmarSenha" minlength="6" required placeholder="Repita sua senha">
+
+        <button type="submit">Cadastrar</button>
+      </form>
+    </section>
+  </main>
+
+ <script>
+  const form = document.getElementById('cadastro');
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault(); 
+
+    const senha = document.getElementById('senha').value;
+    const confirmar = document.getElementById('confirmarSenha').value;
+
+    if (senha !== confirmar) {
+      alert("As senhas não correspondem!");
+      return;
+    }
+
+    
+    window.location.href = "cadastrado.html";
+  });
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+  

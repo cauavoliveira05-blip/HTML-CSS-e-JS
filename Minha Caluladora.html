@@ -1,0 +1,113 @@
+
+ <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora</title>
+</head>
+<body>
+
+ <style>
+    body {
+      background-color: rgb(179, 212, 255);
+    }
+
+    input {
+      width: 200px;
+      height: 25px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      padding: 5px;
+    }
+    button {
+      width: 100px;
+      height: 30px;
+      border-radius: 5px;
+      border: none;
+      background-color: rgb(100, 149, 237);
+      cursor: pointer;
+    }
+     button:hover {
+      background-color: rgb(65, 105, 225);
+      color: white;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 50px;
+    
+    }
+    form {
+      text-align: center;
+      margin-top: 50px;
+    }
+    button {
+      font-weight: bold;
+      font-size: 16px;
+
+    }
+    script {
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+
+
+    }
+    form label {
+      font-size: 18px;
+      font-family: Arial, sans-serif;
+      
+    }
+    function Calculadora {
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+
+
+    }
+    alert {
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+      
+    } 
+
+ </style>
+  <h1 style="font-family: fantasy; color: rgb(2, 8, 19);">
+   Calculadora
+  </h1>
+
+  <form onsubmit="return false;">
+    <label for="var1">Digite o primeiro número:</label><br>
+    <input type="text" id="var1"><br><br>
+
+    <label for="var2">Digite o segundo número:</label><br>
+    <input type="text" id="var2"><br><br>
+
+    <button style="color: rgba(15, 12, 3, 0.87);" 
+            onclick="Calculadora(parseInt(document.getElementById('var1').value), 
+                                parseInt(document.getElementById('var2').value))">
+      Calcular
+    </button>
+  </form>
+
+  <script>
+    function Calculadora(Num1, Num2) {
+      let soma = Num1 + Num2;
+      alert("A soma foi: " + soma);
+
+      let sub = Num1 - Num2;
+      alert("A subtração foi: " + sub);
+
+      let mult = Num1 * Num2;
+      alert("A multiplicação foi: " + mult);
+
+      let div = Num1 / Num2;
+      alert("A divisão foi: " + div);
+    }
+  </script>
+
+</body>
+</html>     
+
+
+
+
+
