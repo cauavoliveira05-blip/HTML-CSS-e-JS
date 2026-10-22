@@ -1,29 +1,609 @@
+
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Sistema de Mercado</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f4f7;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 25px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px #00000015;
+        }
+
+        h1 {
+            text-align: center;
+            color: #247346;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        input, select {
+            border: 1px solid #ccc;
+            background-color: white;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+            background-color: #247346;
+            color: white;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .remover {
+            width: auto;
+            margin-top: 0;
+            padding: 7px 10px;
+            background-color: #c0392b;
+            font-size: 13px;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .item-info {
+            overflow-wrap: anywhere;
+        }
+
+        .total {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f5eb;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #247346;
+            text-align: center;
+        }
+
+        #resultado {
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .vazio {
+            color: #777;
+            text-align: center;
+            padding: 15px 0;
+        }
+    </style>
 </head>
+
 <body>
+
     <div class="container">
-        <h2>Sistema de Mercado</h2>
-        <form id="formItem" autocomplete="off" onsubmit="adicionarItem();return false;">
-            <label for="nomeItem">Nome do Item:</label>
-            <input type="text" id="nomeItem" placeholder="Digite o nome do item" required>
+
+        <h1>Sistema de Mercado</h1>
+
+        <form id="formItem" autocomplete="off">
+
+            <label for="nomeItem">Nome do item:</label>
+
+            <input
+                type="text"
+                id="nomeItem"
+                list="listaProdutos"
+                placeholder="Digite ou selecione um produto"
+                required
+            >
+
+            <datalist id="listaProdutos">
+                <!-- As opções serão criadas pelo JavaScript -->
+            </datalist>
+
             <label for="quantidadeItem">Quantidade:</label>
-            <input type="number" id="quantidadeItem" min="1" value="1" required>
-            <label for="valorUnitario">Valor Unitário (R$):</label>
-            <input type="number" id="valorUnitario" min="0" step="0.01" placeholder="Digite o valor unitário" required>
-            <button type="submit">Adicionar Item</button>
+
+            <input
+                type="number"
+                id="quantidadeItem"
+                min="1"
+                step="1"
+                value="1"
+                required
+            >
+
+            <label for="valorUnitario">Valor unitário (R$):</label>
+
+            <input
+                type="number"
+                id="valorUnitario"
+                min="0"
+                step="0.01"
+                placeholder="Digite ou selecione um produto"
+                required
+            >
+
+            <button type="submit">Adicionar item</button>
+
         </form>
-        <div id="itens-lista"></div>
-        <label for="formaPagamento">Forma de Pagamento:</label>
+
+        <h2>Itens da compra</h2>
+
+        <div id="itens-lista">
+            <p class="vazio">Nenhum item adicionado.</p>
+        </div>
+
+        <div class="total">
+            Total: <span id="totalCompra">R$ 0,00</span>
+        </div>
+
+        <label for="formaPagamento">Forma de pagamento:</label>
+
         <select id="formaPagamento">
             <option value="Cartão de Débito">Cartão de Débito</option>
-            <option value="cartao">Cartão de Crédito</option>
-             <option value="pix">PIX</option>
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="PIX">PIX</option>
+            <option value="Dinheiro">Dinheiro</option>
         </select>
-        <button onclick="finalizarCompra()">Finalizar Compra</button>
-        <div id="resultado"></div>
+
+        <button type="button" id="finalizarCompra">
+            Finalizar compra
+        </button>
+
+        <div id="resultado" aria-live="polite"></div>
+
     </div>
-  
+
+    <script>
+        // 1. CADASTRE OS PRODUTOS E PREÇOS AQUI
+        
+const produtos = [
+
+    // ===== HORTIFRÚTI =====
+    { nome: "Abacate (kg)", preco: 8.99 },
+    { nome: "Abacaxi (unidade)", preco: 7.99 },
+    { nome: "Banana prata (kg)", preco: 7.99 },
+    { nome: "Laranja (kg)", preco: 4.99 },
+    { nome: "Limão (kg)", preco: 5.99 },
+    { nome: "Maçã (kg)", preco: 9.99 },
+    { nome: "Mamão (unidade)", preco: 8.99 },
+    { nome: "Manga (kg)", preco: 7.99 },
+    { nome: "Melancia (kg)", preco: 3.99 },
+    { nome: "Morango (bandeja)", preco: 9.99 },
+    { nome: "Uva (bandeja)", preco: 10.99 },
+    { nome: "Batata (kg)", preco: 6.99 },
+    { nome: "Batata-doce (kg)", preco: 5.99 },
+    { nome: "Cebola (kg)", preco: 5.99 },
+    { nome: "Alho (100 g)", preco: 3.99 },
+    { nome: "Tomate (kg)", preco: 7.99 },
+    { nome: "Cenoura (kg)", preco: 5.99 },
+    { nome: "Beterraba (kg)", preco: 5.99 },
+    { nome: "Abobrinha (kg)", preco: 6.99 },
+    { nome: "Chuchu (kg)", preco: 4.99 },
+    { nome: "Pepino (kg)", preco: 5.99 },
+    { nome: "Pimentão (kg)", preco: 9.99 },
+    { nome: "Alface (unidade)", preco: 3.99 },
+    { nome: "Couve (maço)", preco: 3.99 },
+    { nome: "Cheiro-verde (maço)", preco: 2.99 },
+
+    // ===== CARNES, AVES E PEIXES =====
+    { nome: "Acém bovino (kg)", preco: 34.99 },
+    { nome: "Alcatra bovina (kg)", preco: 49.99 },
+    { nome: "Contra-filé bovino (kg)", preco: 54.99 },
+    { nome: "Patinho bovino (kg)", preco: 42.99 },
+    { nome: "Carne moída bovina (kg)", preco: 34.99 },
+    { nome: "Costela bovina (kg)", preco: 29.99 },
+    { nome: "Picanha bovina (kg)", preco: 69.99 },
+    { nome: "Fígado bovino (kg)", preco: 17.99 },
+    { nome: "Peito de frango (kg)", preco: 19.99 },
+    { nome: "Coxa de frango (kg)", preco: 11.99 },
+    { nome: "Sobrecoxa de frango (kg)", preco: 12.99 },
+    { nome: "Frango inteiro (kg)", preco: 10.99 },
+    { nome: "Linguiça toscana (kg)", preco: 19.99 },
+    { nome: "Salsicha (kg)", preco: 12.99 },
+    { nome: "Bacon (kg)", preco: 29.99 },
+    { nome: "Lombo suíno (kg)", preco: 24.99 },
+    { nome: "Costelinha suína (kg)", preco: 26.99 },
+    { nome: "Filé de tilápia (kg)", preco: 39.99 },
+    { nome: "Sardinha (kg)", preco: 16.99 },
+    { nome: "Camarão (kg)", preco: 59.99 },
+
+    // ===== LATICÍNIOS E OVOS =====
+    { nome: "Leite integral (1 L)", preco: 5.49 },
+    { nome: "Leite desnatado (1 L)", preco: 5.79 },
+    { nome: "Leite sem lactose (1 L)", preco: 6.99 },
+    { nome: "Leite em pó (400 g)", preco: 17.99 },
+    { nome: "Queijo muçarela (kg)", preco: 42.99 },
+    { nome: "Queijo prato (kg)", preco: 44.99 },
+    { nome: "Queijo parmesão ralado (50 g)", preco: 5.49 },
+    { nome: "Requeijão (200 g)", preco: 7.99 },
+    { nome: "Manteiga (200 g)", preco: 10.99 },
+    { nome: "Margarina (500 g)", preco: 7.99 },
+    { nome: "Iogurte natural (170 g)", preco: 3.49 },
+    { nome: "Iogurte de frutas (900 g)", preco: 10.99 },
+    { nome: "Creme de leite (200 g)", preco: 3.49 },
+    { nome: "Leite condensado (395 g)", preco: 6.49 },
+    { nome: "Ovos (dúzia)", preco: 12.99 },
+
+    // ===== MERCEARIA E ALIMENTOS BÁSICOS =====
+    { nome: "Arroz branco (5 kg)", preco: 27.99 },
+    { nome: "Arroz integral (1 kg)", preco: 8.99 },
+    { nome: "Feijão carioca (1 kg)", preco: 8.99 },
+    { nome: "Feijão preto (1 kg)", preco: 8.49 },
+    { nome: "Lentilha (500 g)", preco: 7.99 },
+    { nome: "Ervilha seca (500 g)", preco: 5.99 },
+    { nome: "Macarrão espaguete (500 g)", preco: 4.49 },
+    { nome: "Macarrão parafuso (500 g)", preco: 4.99 },
+    { nome: "Macarrão instantâneo (unidade)", preco: 2.49 },
+    { nome: "Farinha de trigo (1 kg)", preco: 5.49 },
+    { nome: "Farinha de mandioca (1 kg)", preco: 7.99 },
+    { nome: "Farinha de milho (500 g)", preco: 3.99 },
+    { nome: "Fubá (500 g)", preco: 3.49 },
+    { nome: "Tapioca (500 g)", preco: 7.99 },
+    { nome: "Açúcar refinado (1 kg)", preco: 4.99 },
+    { nome: "Açúcar mascavo (500 g)", preco: 7.99 },
+    { nome: "Sal (1 kg)", preco: 2.49 },
+    { nome: "Óleo de soja (900 ml)", preco: 7.99 },
+    { nome: "Azeite de oliva (500 ml)", preco: 34.99 },
+    { nome: "Vinagre (750 ml)", preco: 3.99 },
+    { nome: "Café em pó (500 g)", preco: 29.99 },
+    { nome: "Café solúvel (100 g)", preco: 12.99 },
+    { nome: "Achocolatado em pó (400 g)", preco: 9.99 },
+    { nome: "Chocolate em pó (200 g)", preco: 8.99 },
+    { nome: "Amido de milho (200 g)", preco: 4.49 },
+    { nome: "Fermento químico (100 g)", preco: 4.49 },
+    { nome: "Milho para pipoca (500 g)", preco: 4.99 },
+    { nome: "Milho verde em conserva (170 g)", preco: 4.49 },
+    { nome: "Ervilha em conserva (170 g)", preco: 4.49 },
+    { nome: "Molho de tomate (300 g)", preco: 2.99 },
+    { nome: "Extrato de tomate (300 g)", preco: 5.49 },
+    { nome: "Maionese (500 g)", preco: 8.99 },
+    { nome: "Mostarda (200 g)", preco: 5.99 },
+    { nome: "Ketchup (400 g)", preco: 8.99 },
+    { nome: "Molho de pimenta (150 ml)", preco: 5.99 },
+    { nome: "Atum em lata (170 g)", preco: 8.99 },
+    { nome: "Sardinha em lata (125 g)", preco: 6.49 },
+    { nome: "Azeitona (200 g)", preco: 8.99 },
+    { nome: "Palmito em conserva (300 g)", preco: 17.99 },
+    { nome: "Gelatina em pó (25 g)", preco: 2.49 },
+    { nome: "Pudim em pó (50 g)", preco: 3.49 },
+    { nome: "Biscoito água e sal (200 g)", preco: 4.49 },
+    { nome: "Biscoito cream cracker (200 g)", preco: 4.99 },
+    { nome: "Biscoito recheado (130 g)", preco: 2.99 },
+    { nome: "Bolacha maisena (350 g)", preco: 5.99 },
+    { nome: "Aveia em flocos (170 g)", preco: 5.99 },
+    { nome: "Granola (250 g)", preco: 10.99 },
+    { nome: "Amendoim torrado (200 g)", preco: 6.99 },
+    { nome: "Batata palha (100 g)", preco: 5.99 },
+    { nome: "Sopa instantânea (unidade)", preco: 3.99 },
+
+    // ===== PÃES E PADARIA =====
+    { nome: "Pão francês (kg)", preco: 16.99 },
+    { nome: "Pão de forma tradicional (unidade)", preco: 8.99 },
+    { nome: "Pão integral (unidade)", preco: 10.99 },
+    { nome: "Pão de cachorro-quente (pacote)", preco: 8.49 },
+    { nome: "Pão de hambúrguer (pacote)", preco: 8.49 },
+    { nome: "Bolo simples (unidade)", preco: 14.99 },
+    { nome: "Biscoito de polvilho (100 g)", preco: 5.99 },
+    { nome: "Torrada (160 g)", preco: 5.49 },
+
+    // ===== BEBIDAS =====
+    { nome: "Água mineral (500 ml)", preco: 2.49 },
+    { nome: "Água mineral (1,5 L)", preco: 3.99 },
+    { nome: "Água com gás (500 ml)", preco: 2.99 },
+    { nome: "Refrigerante cola (2 L)", preco: 10.99 },
+    { nome: "Refrigerante guaraná (2 L)", preco: 8.99 },
+    { nome: "Refrigerante limão (2 L)", preco: 8.99 },
+    { nome: "Refrigerante lata (350 ml)", preco: 3.99 },
+    { nome: "Suco de laranja (1 L)", preco: 8.99 },
+    { nome: "Suco de uva (1 L)", preco: 10.99 },
+    { nome: "Néctar de fruta (1 L)", preco: 5.99 },
+    { nome: "Refresco em pó (unidade)", preco: 1.49 },
+    { nome: "Chá em sachês (caixa)", preco: 6.99 },
+    { nome: "Chá pronto (1,5 L)", preco: 7.99 },
+    { nome: "Achocolatado pronto (200 ml)", preco: 2.99 },
+    { nome: "Água de coco (1 L)", preco: 9.99 },
+
+    // ===== CONGELADOS =====
+    { nome: "Batata frita congelada (1 kg)", preco: 19.99 },
+    { nome: "Pizza congelada (unidade)", preco: 16.99 },
+    { nome: "Lasanha congelada (unidade)", preco: 17.99 },
+    { nome: "Hambúrguer congelado (caixa)", preco: 16.99 },
+    { nome: "Nuggets de frango (300 g)", preco: 12.99 },
+    { nome: "Pão de queijo congelado (1 kg)", preco: 19.99 },
+    { nome: "Polpa de fruta (pacote)", preco: 7.99 },
+    { nome: "Sorvete (1,5 L)", preco: 24.99 },
+
+    // ===== LIMPEZA DOMÉSTICA =====
+    { nome: "Detergente líquido (500 ml)", preco: 2.49 },
+    { nome: "Sabão em pó (1,6 kg)", preco: 19.99 },
+    { nome: "Sabão em barra (pacote)", preco: 9.99 },
+    { nome: "Amaciante (2 L)", preco: 12.99 },
+    { nome: "Água sanitária (1 L)", preco: 4.49 },
+    { nome: "Desinfetante (2 L)", preco: 7.99 },
+    { nome: "Limpador multiuso (500 ml)", preco: 5.99 },
+    { nome: "Limpa-vidros (500 ml)", preco: 8.99 },
+    { nome: "Esponja de cozinha (unidade)", preco: 1.99 },
+    { nome: "Esponja de aço (pacote)", preco: 2.99 },
+    { nome: "Palha de aço (pacote)", preco: 3.49 },
+    { nome: "Pano de chão (unidade)", preco: 8.99 },
+    { nome: "Saco de lixo (30 L, rolo)", preco: 8.99 },
+    { nome: "Desengordurante (500 ml)", preco: 9.99 },
+    { nome: "Lustra-móveis (200 ml)", preco: 9.49 },
+
+    // ===== HIGIENE PESSOAL =====
+    { nome: "Papel higiênico (4 rolos)", preco: 7.99 },
+    { nome: "Papel higiênico (12 rolos)", preco: 19.99 },
+    { nome: "Creme dental (90 g)", preco: 4.99 },
+    { nome: "Escova de dentes (unidade)", preco: 5.99 },
+    { nome: "Fio dental (unidade)", preco: 8.99 },
+    { nome: "Enxaguante bucal (500 ml)", preco: 14.99 },
+    { nome: "Sabonete (unidade)", preco: 2.49 },
+    { nome: "Sabonete líquido (250 ml)", preco: 9.99 },
+    { nome: "Shampoo (350 ml)", preco: 14.99 },
+    { nome: "Condicionador (350 ml)", preco: 15.99 },
+    { nome: "Desodorante aerosol (150 ml)", preco: 12.99 },
+    { nome: "Desodorante roll-on (50 ml)", preco: 8.99 },
+    { nome: "Fio dental infantil (unidade)", preco: 7.99 },
+    { nome: "Absorvente (pacote)", preco: 8.99 },
+    { nome: "Aparelho de barbear descartável", preco: 5.99 },
+    { nome: "Creme de barbear (unidade)", preco: 12.99 },
+    { nome: "Algodão (pacote)", preco: 5.99 },
+    { nome: "Cotonetes (caixa)", preco: 4.99 },
+    { nome: "Lenço umedecido (pacote)", preco: 9.99 },
+    { nome: "Protetor solar (120 ml)", preco: 39.99 },
+
+    // ===== BEBÊS =====
+    { nome: "Fralda descartável (pacote)", preco: 39.99 },
+    { nome: "Lenço umedecido para bebê (pacote)", preco: 9.99 },
+    { nome: "Sabonete infantil (unidade)", preco: 6.99 },
+    { nome: "Shampoo infantil (200 ml)", preco: 12.99 },
+    { nome: "Creme para assaduras (unidade)", preco: 17.99 },
+    { nome: "Papinha infantil (unidade)", preco: 7.99 },
+
+    // ===== ANIMAIS DE ESTIMAÇÃO =====
+    { nome: "Ração para cães (1 kg)", preco: 15.99 },
+    { nome: "Ração para cães (10 kg)", preco: 119.99 },
+    { nome: "Ração para gatos (1 kg)", preco: 18.99 },
+    { nome: "Ração para gatos (10 kg)", preco: 149.99 },
+    { nome: "Sachê para gatos (unidade)", preco: 3.49 },
+    { nome: "Sachê para cães (unidade)", preco: 3.49 },
+    { nome: "Areia higiênica para gatos (4 kg)", preco: 19.99 },
+
+    // ===== UTILIDADES E DESCARTÁVEIS =====
+    { nome: "Papel-toalha (rolo)", preco: 5.99 },
+    { nome: "Guardanapo de papel (pacote)", preco: 3.99 },
+    { nome: "Papel-alumínio (rolo)", preco: 7.99 },
+    { nome: "Filme plástico (rolo)", preco: 6.99 },
+    { nome: "Copo descartável (pacote)", preco: 6.99 },
+    { nome: "Prato descartável (pacote)", preco: 7.99 },
+    { nome: "Talheres descartáveis (pacote)", preco: 5.99 },
+    { nome: "Fósforo (caixa)", preco: 1.99 },
+    { nome: "Pilha AA (pacote)", preco: 12.99 },
+    { nome: "Lâmpada LED (unidade)", preco: 9.99 }
+
+];
+
+       
+
+
+        // 2. ELEMENTOS DO HTML
+
+        const nomeItem = document.getElementById("nomeItem");
+        const quantidadeItem = document.getElementById("quantidadeItem");
+        const valorUnitario = document.getElementById("valorUnitario");
+        const listaProdutos = document.getElementById("listaProdutos");
+        const itensLista = document.getElementById("itens-lista");
+        const totalCompra = document.getElementById("totalCompra");
+        const formaPagamento = document.getElementById("formaPagamento");
+        const resultado = document.getElementById("resultado");
+        const formItem = document.getElementById("formItem");
+
+        // Guarda os itens adicionados à compra.
+        const itens = [];
+
+        const moeda = valor => valor.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+        });
+
+
+        // 3. CRIA A LISTA DE PRODUTOS
+
+        function carregarProdutos() {
+            produtos.forEach(produto => {
+                const opcao = document.createElement("option");
+
+                opcao.value = produto.nome;
+                listaProdutos.appendChild(opcao);
+            });
+        }
+
+
+        // 4. PREENCHE O PREÇO AO SELECIONAR UM PRODUTO
+
+        nomeItem.addEventListener("input", function () {
+            const nomeDigitado = nomeItem.value.trim().toLowerCase();
+
+            const produto = produtos.find(p =>
+                p.nome.toLowerCase() === nomeDigitado
+            );
+
+            if (produto) {
+                valorUnitario.value = produto.preco.toFixed(2);
+            } else {
+                valorUnitario.value = "";
+            }
+        });
+
+
+        // 5. ADICIONA UM ITEM À COMPRA
+
+        formItem.addEventListener("submit", function (evento) {
+            evento.preventDefault();
+
+            const nome = nomeItem.value.trim();
+            const quantidade = Number(quantidadeItem.value);
+            const preco = Number(valorUnitario.value);
+
+            if (
+                !nome ||
+                !Number.isInteger(quantidade) ||
+                quantidade < 1 ||
+                valorUnitario.value === "" ||
+                !Number.isFinite(preco) ||
+                preco < 0
+            ) {
+                alert("Confira o nome, a quantidade e o preço.");
+                return;
+            }
+
+            itens.push({
+                nome: nome,
+                quantidade: quantidade,
+                preco: preco
+            });
+
+            atualizarLista();
+
+            formItem.reset();
+            quantidadeItem.value = 1;
+            nomeItem.focus();
+
+            resultado.innerHTML = "";
+        });
+
+
+        // 6. MOSTRA OS ITENS E CALCULA O TOTAL
+
+        function atualizarLista() {
+            itensLista.innerHTML = "";
+
+            if (itens.length === 0) {
+                itensLista.innerHTML =
+                    '<p class="vazio">Nenhum item adicionado.</p>';
+            }
+
+            itens.forEach((item, indice) => {
+                const subtotal = item.quantidade * item.preco;
+
+                const linha = document.createElement("div");
+                linha.className = "item";
+
+                const informacao = document.createElement("div");
+                informacao.className = "item-info";
+
+                const nome = document.createElement("strong");
+                nome.textContent = item.nome;
+
+                const detalhe = document.createElement("div");
+                detalhe.textContent =
+                    `${item.quantidade} x ${moeda(item.preco)} = ${moeda(subtotal)}`;
+
+                informacao.append(nome, detalhe);
+
+                const botao = document.createElement("button");
+                botao.type = "button";
+                botao.className = "remover";
+                botao.textContent = "Remover";
+                botao.setAttribute(
+                    "aria-label",
+                    `Remover ${item.nome}`
+                );
+
+                botao.addEventListener("click", function () {
+                    itens.splice(indice, 1);
+                    atualizarLista();
+                    resultado.innerHTML = "";
+                });
+
+                linha.append(informacao, botao);
+                itensLista.appendChild(linha);
+            });
+
+            const total = itens.reduce(
+                (soma, item) => soma + item.quantidade * item.preco,
+                0
+            );
+
+            totalCompra.textContent = moeda(total);
+        }
+
+
+        // 7. FINALIZA A COMPRA
+
+        document.getElementById("finalizarCompra")
+            .addEventListener("click", function () {
+
+                if (itens.length === 0) {
+                    alert("Adicione pelo menos um item antes de finalizar.");
+                    return;
+                }
+
+                const total = itens.reduce(
+                    (soma, item) => soma + item.quantidade * item.preco,
+                    0
+                );
+
+                const pagamento = formaPagamento.value;
+
+                resultado.replaceChildren();
+
+                const titulo = document.createElement("h2");
+                titulo.textContent = "Compra finalizada!";
+
+                const totalTexto = document.createElement("p");
+                totalTexto.textContent = "Total pago: " + moeda(total);
+
+                const pagamentoTexto = document.createElement("p");
+                pagamentoTexto.textContent =
+                    "Forma de pagamento: " + pagamento;
+
+                resultado.append(
+                    titulo,
+                    totalTexto,
+                    pagamentoTexto
+                );
+            });
+
+
+        // INICIA O SISTEMA
+
+        carregarProdutos();
+        atualizarLista();
+
+    </script>
+
+</body>
+</html>
